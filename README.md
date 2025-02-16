@@ -15,8 +15,16 @@ UserActivityLogger::viewed($post);
 <br>
 UserActivityLogger::created($user);
 <br>
+
+//before update your model take orginal values
+<br>
+UserAcitivityLogger::prepareForUpdate($product);
+<br>
+//after update get log
+<br>
 UserActivityLogger::updated($product);
 <br>
+
 UserActivityLogger::deleted($comment);
 <br>
 UserActivityLogger::restored($post); // For soft deletes
