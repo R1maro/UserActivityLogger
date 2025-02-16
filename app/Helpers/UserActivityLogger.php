@@ -95,17 +95,30 @@ class UserActivityLogger
         );
     }
 
+       private static array $originalValues = [];
+
+    /**
+     * Prepare for logging by capturing original values
+     */
+    public static function prepareForUpdate(Model $model): void
+    {
+        $key = get_class($model) . '-' . $model->getKey();
+        self::$originalValues[$key] = $model->getOriginal();
+    }
+
     /**
      * Log a model update event
      */
     public static function updated(Model $model, array $additional = []): void
     {
-        // Get old and new values for changed attributes
+        $key = get_class($model) . '-' . $model->getKey();
+        $originalValues = self::$originalValues[$key] ?? [];
         $changes = $model->getChanges();
+
         $changeLog = [];
         foreach ($changes as $attribute => $newValue) {
             $changeLog[$attribute] = [
-                'from' => $model->getOriginal($attribute),
+                'from' => $originalValues[$attribute] ?? null,
                 'to' => $newValue
             ];
         }
@@ -115,6 +128,9 @@ class UserActivityLogger
             'update',
             array_merge(['changes' => $changeLog], $additional)
         );
+
+        // Clean up stored values
+        unset(self::$originalValues[$key]);
     }
 
     /**
